@@ -56,7 +56,6 @@ const styles = StyleSheet.create({
     color: '#000'
   },
   gradeBadge: {
-    alignSelf: 'flex-start',
     padding: '8px 20px',
     borderRadius: 20,
     fontSize: 18,

@@ -32,7 +32,7 @@ export const useStockNotifications = () => {
 
   useEffect(() => {
     const q = query(collection(db, 'stocks'), where('humidity', '>=', 8));
-    
+
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       try {
         setIsProcessing(true);
@@ -42,10 +42,10 @@ export const useStockNotifications = () => {
         for (const stockDoc of snapshot.docs) {
           try {
             const stock = { id: stockDoc.id, ...stockDoc.data() } as StockEntry;
-            
+
             // Skip if we've already processed this stock in this session
             if (processedStocks.has(stock.id!)) continue;
-            
+
             if (!validateStockData(stock)) continue;
             if (!validateDryingConfirmation(stock)) continue;
 
@@ -77,13 +77,13 @@ export const useStockNotifications = () => {
               if (dryingConditions.canDry) {
                 recommendations = [
                   ...dryingConditions.recommendations,
-                  dryingConditions.optimalHours 
+                  dryingConditions.optimalHours
                     ? `Période optimale: ${dryingConditions.optimalHours.start.toLocaleTimeString()} - ${dryingConditions.optimalHours.end.toLocaleTimeString()}`
                     : undefined
                 ].filter(Boolean) as string[];
 
                 // Check if this is a new alert
-                if (!stock.lastNotification || 
+                if (!stock.lastNotification ||
                     new Date(stock.lastNotification).getTime() < Date.now() - 30 * 60 * 1000) {
                   hasNewAlerts = true;
                 }
@@ -120,7 +120,7 @@ export const useStockNotifications = () => {
     });
 
     return () => unsubscribe();
-  }, [playNotificationSound]);
+  }, []);
 
   const confirmStockDrying = async (stockId: string) => {
     try {

@@ -103,7 +103,6 @@ const styles = StyleSheet.create({
   },
   qualityTitle: {
     fontSize: 12,
-    fontWeight: 'bold',
     fontWeight: '700',
   },
   qualityRow: {

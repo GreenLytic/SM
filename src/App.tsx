@@ -24,33 +24,6 @@ const RouteList = lazy(() => import('./components/routes/RouteList'));
 const SettingsModule = lazy(() => import('./components/SettingsModule'));
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Simulate initial loading and preload critical components
-  useEffect(() => {
-    // Preload the most important components
-    const preloadComponents = async () => {
-      try {
-        // Start preloading Dashboard and MainLayout
-        const dashboardModule = import('./components/dashboard/Dashboard');
-        
-        // Wait for critical components to load
-        await dashboardModule;
-        
-        // Set loading to false after components are loaded
-        setTimeout(() => setIsLoading(false), 300);
-      } catch (error) {
-        console.error('Error preloading components:', error);
-        setIsLoading(false);
-      }
-    };
-
-    preloadComponents();
-  }, []);
-
-  if (isLoading) {
-    return <LightLoadingFallback />;
-  }
 
   return (
     <AuthProvider>
