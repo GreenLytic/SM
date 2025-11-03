@@ -11,7 +11,7 @@ export async function initDatabase(): Promise<Database> {
 
   try {
     SQL = await initSqlJs({
-      locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/${file}`
+      locateFile: (file) => `/${file}`
     });
 
     const savedDb = await localforage.getItem<Uint8Array>(DB_NAME);

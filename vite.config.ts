@@ -50,10 +50,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      'sql.js': 'sql.js/dist/sql-wasm.js'
+      '@': path.resolve(__dirname, './src')
     }
   },
+  publicDir: 'public',
   server: {
     hmr: {
       overlay: true
