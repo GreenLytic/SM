@@ -6,26 +6,26 @@ export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     include: [
-      'react',
-      'react-dom',
+      'react', 
+      'react-dom', 
       'react-router-dom',
+      'firebase/app',
+      'firebase/firestore',
+      'firebase/auth',
+      'firebase/storage',
       'lucide-react',
       'react-hot-toast',
       'date-fns'
     ],
-    exclude: ['sql.js']
+    exclude: []
   },
-  worker: {
-    format: 'es'
-  },
-  assetsInclude: ['**/*.wasm'],
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: [
-            'react',
-            'react-dom',
+            'react', 
+            'react-dom', 
             'react-router-dom',
             'firebase/app',
             'firebase/firestore',
@@ -38,7 +38,7 @@ export default defineConfig({
         }
       }
     },
-    target: 'es2020',
+    target: 'es2015',
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -53,7 +53,6 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src')
     }
   },
-  publicDir: 'public',
   server: {
     hmr: {
       overlay: true

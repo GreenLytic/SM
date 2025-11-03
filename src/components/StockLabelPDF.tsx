@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
     width: '60%',
+    alignSelf: 'center',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   },
   gradeI: {

@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '../lib/firebase';
 import { AuthService } from '../services/auth/authService';
 import { AuthState, User, LoginCredentials, RegisterData } from '../types/auth';
-import { initDatabase } from '../lib/database';
+import { doc, getDoc } from 'firebase/firestore';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -20,33 +22,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    async function loadUser() {
-      console.log('Starting database initialization...');
-      const timeout = setTimeout(() => {
-        console.error('Database initialization timeout after 5 seconds');
-        setState({
-          user: null,
-          loading: false,
-          error: 'Timeout: impossible de charger la base de données'
-        });
-      }, 5000);
-
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
-        console.log('Calling initDatabase...');
-        await initDatabase();
-        console.log('Database initialized successfully');
-        const user = await AuthService.getCurrentUser();
-        console.log('User loaded:', user);
-        clearTimeout(timeout);
-        setState({ user, loading: false, error: null });
-      } catch (error: any) {
-        clearTimeout(timeout);
+        if (firebaseUser) {
+          // Get user data from Firestore
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setState({
+              user: {
+                id: firebaseUser.uid,
+                email: firebaseUser.email || '',
+                displayName: userData.displayName || '',
+                role: userData.role,
+                organizationId: userData.organizationId,
+                createdAt: userData.createdAt?.toDate(),
+                lastLoginAt: userData.lastLoginAt?.toDate()
+              },
+              loading: false,
+              error: null
+            });
+          } else {
+            setState({ user: null, loading: false, error: 'User data not found' });
+          }
+        } else {
+          setState({ user: null, loading: false, error: null });
+        }
+      } catch (error) {
         console.error('Error loading user data:', error);
-        setState({ user: null, loading: false, error: error.message || 'Erreur de chargement' });
+        setState({ user: null, loading: false, error: 'Error loading user data' });
       }
-    }
+    });
 
-    loadUser();
+    return () => unsubscribe();
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
