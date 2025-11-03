@@ -6,19 +6,19 @@ export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     include: [
-      'react', 
-      'react-dom', 
+      'react',
+      'react-dom',
       'react-router-dom',
-      'firebase/app',
-      'firebase/firestore',
-      'firebase/auth',
-      'firebase/storage',
       'lucide-react',
       'react-hot-toast',
       'date-fns'
     ],
-    exclude: []
+    exclude: ['sql.js']
   },
+  worker: {
+    format: 'es'
+  },
+  assetsInclude: ['**/*.wasm'],
   build: {
     rollupOptions: {
       output: {
@@ -50,7 +50,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './src'),
+      'sql.js': 'sql.js/dist/sql-wasm.js'
     }
   },
   server: {

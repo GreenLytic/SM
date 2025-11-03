@@ -11,7 +11,7 @@ export async function initDatabase(): Promise<Database> {
 
   try {
     SQL = await initSqlJs({
-      locateFile: (file) => `https://sql.js.org/dist/${file}`
+      locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/${file}`
     });
 
     const savedDb = await localforage.getItem<Uint8Array>(DB_NAME);
@@ -28,7 +28,7 @@ export async function initDatabase(): Promise<Database> {
     return db;
   } catch (error) {
     console.error('Database initialization failed:', error);
-    throw new Error('Failed to initialize database. Please check your internet connection and try again.');
+    throw new Error('Échec d\'initialisation de la base de données. Veuillez rafraîchir la page.');
   }
 }
 
