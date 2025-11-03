@@ -17,6 +17,7 @@ export async function initDatabase(): Promise<Database> {
 
   if (savedDb) {
     db = new SQL.Database(savedDb);
+    await ensureDefaultUser();
   } else {
     db = new SQL.Database();
     await createTables();
@@ -25,6 +26,23 @@ export async function initDatabase(): Promise<Database> {
   }
 
   return db;
+}
+
+async function ensureDefaultUser() {
+  if (!db) return;
+
+  const stmt = db.prepare('SELECT COUNT(*) as count FROM users WHERE email = ?');
+  stmt.bind(['admin@smartcoop.local']);
+
+  if (stmt.step()) {
+    const result = stmt.getAsObject();
+    stmt.free();
+
+    if (result.count === 0) {
+      await createDefaultUser();
+      await saveDatabase();
+    }
+  }
 }
 
 async function createDefaultUser() {

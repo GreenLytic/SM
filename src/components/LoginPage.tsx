@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogIn } from 'lucide-react';
+import { LogIn, RefreshCw } from 'lucide-react';
+import { clearDatabase, initDatabase } from '../lib/database';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -25,6 +27,20 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.error('Authentication error:', error);
+    }
+  };
+
+  const handleResetDatabase = async () => {
+    if (confirm('Êtes-vous sûr de vouloir réinitialiser la base de données ? Toutes les données seront perdues.')) {
+      try {
+        await clearDatabase();
+        await initDatabase();
+        toast.success('Base de données réinitialisée avec succès');
+        window.location.reload();
+      } catch (error) {
+        console.error('Error resetting database:', error);
+        toast.error('Erreur lors de la réinitialisation');
+      }
     }
   };
 
@@ -118,6 +134,16 @@ export default function LoginPage() {
               </p>
             </div>
           )}
+
+          <div className="mt-4">
+            <button
+              onClick={handleResetDatabase}
+              className="w-full flex items-center justify-center gap-2 text-gray-600 hover:text-gray-800 py-2 text-sm"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Réinitialiser la base de données
+            </button>
+          </div>
         </div>
 
         <p className="text-center text-gray-600 text-sm mt-6">
