@@ -49,6 +49,8 @@ export default function StockTable({
       case 'completed': return 'bg-success-light text-success-dark';
       case 'partially_delivered': return 'bg-purple-100 text-purple-800';
       case 'delivered': return 'bg-gray-100 text-gray-700';
+      case 'partially_delivered': return 'bg-purple-100 text-purple-800';
+      case 'delivered': return 'bg-gray-100 text-gray-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
@@ -58,6 +60,8 @@ export default function StockTable({
       case 'pending': return 'En attente';
       case 'partial': return 'Partiellement payé';
       case 'completed': return 'Complété';
+      case 'partially_delivered': return 'Partiellement livré';
+      case 'delivered': return 'Livré';
       case 'partially_delivered': return 'Partiellement livré';
       case 'delivered': return 'Livré';
       default: return status;

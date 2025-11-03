@@ -24,8 +24,8 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: [
-            'react',
-            'react-dom',
+            'react', 
+            'react-dom', 
             'react-router-dom',
             'firebase/app',
             'firebase/firestore',
@@ -38,7 +38,7 @@ export default defineConfig({
         }
       }
     },
-    target: 'es2020',
+    target: 'es2015',
     minify: 'terser',
     terserOptions: {
       compress: {
