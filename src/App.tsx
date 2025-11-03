@@ -1,7 +1,7 @@
-import React, { Suspense, lazy, useState, useEffect } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './contexts/AuthContext';
+import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
 import MainLayout from './components/layout/MainLayout';
 
 // Use a lightweight loading component for initial render
@@ -26,7 +26,7 @@ const SettingsModule = lazy(() => import('./components/SettingsModule'));
 function App() {
 
   return (
-    <AuthProvider>
+    <SupabaseAuthProvider>
       <Router>
         <Routes>
           <Route path="/" element={<MainLayout />}>
@@ -84,7 +84,7 @@ function App() {
         </Routes>
         <Toaster />
       </Router>
-    </AuthProvider>
+    </SupabaseAuthProvider>
   );
 }
 
