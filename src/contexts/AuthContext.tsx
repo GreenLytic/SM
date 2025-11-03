@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth, db } from '../lib/firebase';
 import { AuthService } from '../services/auth/authService';
 import { AuthState, User, LoginCredentials, RegisterData } from '../types/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { initDatabase } from '../lib/database';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -22,39 +20,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    async function loadUser() {
       try {
-        if (firebaseUser) {
-          // Get user data from Firestore
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setState({
-              user: {
-                id: firebaseUser.uid,
-                email: firebaseUser.email || '',
-                displayName: userData.displayName || '',
-                role: userData.role,
-                organizationId: userData.organizationId,
-                createdAt: userData.createdAt?.toDate(),
-                lastLoginAt: userData.lastLoginAt?.toDate()
-              },
-              loading: false,
-              error: null
-            });
-          } else {
-            setState({ user: null, loading: false, error: 'User data not found' });
-          }
-        } else {
-          setState({ user: null, loading: false, error: null });
-        }
+        await initDatabase();
+        const user = await AuthService.getCurrentUser();
+        setState({ user, loading: false, error: null });
       } catch (error) {
         console.error('Error loading user data:', error);
         setState({ user: null, loading: false, error: 'Error loading user data' });
       }
-    });
+    }
 
-    return () => unsubscribe();
+    loadUser();
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
