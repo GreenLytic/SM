@@ -9,22 +9,27 @@ const DB_NAME = 'smartcoop.db';
 export async function initDatabase(): Promise<Database> {
   if (db) return db;
 
-  SQL = await initSqlJs({
-    locateFile: (file) => `https://sql.js.org/dist/${file}`
-  });
+  try {
+    SQL = await initSqlJs({
+      locateFile: (file) => `https://sql.js.org/dist/${file}`
+    });
 
-  const savedDb = await localforage.getItem<Uint8Array>(DB_NAME);
+    const savedDb = await localforage.getItem<Uint8Array>(DB_NAME);
 
-  if (savedDb) {
-    db = new SQL.Database(savedDb);
-  } else {
-    db = new SQL.Database();
-    await createTables();
-    await createDefaultUser();
-    await saveDatabase();
+    if (savedDb) {
+      db = new SQL.Database(savedDb);
+    } else {
+      db = new SQL.Database();
+      await createTables();
+      await createDefaultUser();
+      await saveDatabase();
+    }
+
+    return db;
+  } catch (error) {
+    console.error('Database initialization failed:', error);
+    throw new Error('Failed to initialize database. Please check your internet connection and try again.');
   }
-
-  return db;
 }
 
 async function createDefaultUser() {

@@ -21,11 +21,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function loadUser() {
+      const timeout = setTimeout(() => {
+        setState({
+          user: null,
+          loading: false,
+          error: 'Database initialization timeout. Please refresh the page.'
+        });
+      }, 10000);
+
       try {
         await initDatabase();
         const user = await AuthService.getCurrentUser();
+        clearTimeout(timeout);
         setState({ user, loading: false, error: null });
       } catch (error) {
+        clearTimeout(timeout);
         console.error('Error loading user data:', error);
         setState({ user: null, loading: false, error: 'Error loading user data' });
       }

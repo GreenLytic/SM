@@ -7,7 +7,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [displayName, setDisplayName] = useState('');
-  const { login, register, loading } = useAuth();
+  const { login, register, loading, error } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +41,12 @@ export default function LoginPage() {
               {isRegistering ? 'Créer un compte' : 'Connectez-vous à votre compte'}
             </p>
           </div>
+
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {isRegistering && (
