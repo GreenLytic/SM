@@ -5,6 +5,7 @@ import './index.css';
 import { Toaster } from 'react-hot-toast';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Font } from '@react-pdf/renderer';
+import { initDatabase } from './lib/database';
 
 // Register fonts globally to prevent conflicts
 Font.register({
@@ -15,29 +16,13 @@ Font.register({
   ]
 });
 
-// Preload critical assets
-const preloadAssets = () => {
-  // Only run in browser environment
-  if (typeof window === 'undefined') return;
-  
-  // Preload notification sound
-  const audio = new Audio();
-  audio.src = '/src/assets/sounds/notification.mp3';
-  audio.preload = 'auto';
-  
-  // Preload critical images
-  const preloadImage = (src: string) => {
-    const img = new Image();
-    img.src = src;
-  };
-  
-  // Preload Mapbox assets
-  preloadImage('https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css');
-};
-
 // Initialize app with error boundary
-const initializeApp = () => {
+const initializeApp = async () => {
   try {
+    console.log('Initializing SQLite database...');
+    await initDatabase();
+    console.log('Database initialized successfully');
+
     const rootElement = document.getElementById('root');
     if (!rootElement) throw new Error('Failed to find the root element');
 
@@ -46,7 +31,7 @@ const initializeApp = () => {
     root.render(
       <StrictMode>
         <App />
-        <Toaster 
+        <Toaster
           position="top-right"
           toastOptions={{
             duration: 4000,
@@ -59,8 +44,7 @@ const initializeApp = () => {
         />
       </StrictMode>
     );
-    
-    // Log successful initialization
+
     console.log('Application initialized successfully');
   } catch (error) {
     console.error('Failed to initialize application:', error);
@@ -84,12 +68,9 @@ const initializeApp = () => {
   }
 };
 
-// Start preloading assets
-preloadAssets();
-
-// Initialize the app with a small delay to ensure DOM is ready
+// Initialize the app when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => setTimeout(initializeApp, 0));
+  document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
-  setTimeout(initializeApp, 0);
+  initializeApp();
 }

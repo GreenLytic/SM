@@ -20,10 +20,25 @@ export async function initDatabase(): Promise<Database> {
   } else {
     db = new SQL.Database();
     await createTables();
+    await createDefaultUser();
     await saveDatabase();
   }
 
   return db;
+}
+
+async function createDefaultUser() {
+  if (!db) return;
+
+  // Create default admin user: admin@smartcoop.local / admin123
+  const passwordHash = btoa('admin123');
+  const now = new Date().toISOString();
+  const userId = '00000000-0000-0000-0000-000000000001';
+
+  db.run(`
+    INSERT OR IGNORE INTO users (id, email, password_hash, display_name, role, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `, [userId, 'admin@smartcoop.local', passwordHash, 'Administrateur', 'admin', now, now]);
 }
 
 async function createTables() {

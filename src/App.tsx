@@ -1,8 +1,9 @@
-import React, { Suspense, lazy, useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import MainLayout from './components/layout/MainLayout';
+import LoginPage from './components/LoginPage';
 
 // Use a lightweight loading component for initial render
 const LightLoadingFallback = () => (
@@ -10,6 +11,21 @@ const LightLoadingFallback = () => (
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2F5E1E]"></div>
   </div>
 );
+
+// Protected Route Component
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <LightLoadingFallback />;
+  }
+
+  if (!user) {
+    return <LoginPage />;
+  }
+
+  return <>{children}</>;
+}
 
 // Lazy load all components
 const Dashboard = lazy(() => import('./components/dashboard/Dashboard'));
@@ -24,39 +40,16 @@ const RouteList = lazy(() => import('./components/routes/RouteList'));
 const SettingsModule = lazy(() => import('./components/SettingsModule'));
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Simulate initial loading and preload critical components
-  useEffect(() => {
-    // Preload the most important components
-    const preloadComponents = async () => {
-      try {
-        // Start preloading Dashboard and MainLayout
-        const dashboardModule = import('./components/dashboard/Dashboard');
-        
-        // Wait for critical components to load
-        await dashboardModule;
-        
-        // Set loading to false after components are loaded
-        setTimeout(() => setIsLoading(false), 300);
-      } catch (error) {
-        console.error('Error preloading components:', error);
-        setIsLoading(false);
-      }
-    };
-
-    preloadComponents();
-  }, []);
-
-  if (isLoading) {
-    return <LightLoadingFallback />;
-  }
-
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<MainLayout />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }>
             <Route index element={
               <Suspense fallback={<LightLoadingFallback />}>
                 <Dashboard />
