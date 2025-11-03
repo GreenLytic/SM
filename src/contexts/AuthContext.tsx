@@ -21,23 +21,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function loadUser() {
+      console.log('Starting database initialization...');
       const timeout = setTimeout(() => {
+        console.error('Database initialization timeout after 5 seconds');
         setState({
           user: null,
           loading: false,
-          error: 'Database initialization timeout. Please refresh the page.'
+          error: 'Timeout: impossible de charger la base de données'
         });
-      }, 10000);
+      }, 5000);
 
       try {
+        console.log('Calling initDatabase...');
         await initDatabase();
+        console.log('Database initialized successfully');
         const user = await AuthService.getCurrentUser();
+        console.log('User loaded:', user);
         clearTimeout(timeout);
         setState({ user, loading: false, error: null });
-      } catch (error) {
+      } catch (error: any) {
         clearTimeout(timeout);
         console.error('Error loading user data:', error);
-        setState({ user: null, loading: false, error: 'Error loading user data' });
+        setState({ user: null, loading: false, error: error.message || 'Erreur de chargement' });
       }
     }
 

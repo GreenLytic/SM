@@ -7,28 +7,41 @@ let SQL: any = null;
 const DB_NAME = 'smartcoop.db';
 
 export async function initDatabase(): Promise<Database> {
-  if (db) return db;
+  if (db) {
+    console.log('Database already initialized');
+    return db;
+  }
 
   try {
+    console.log('Initializing SQL.js...');
     SQL = await initSqlJs({
-      locateFile: (file) => `/${file}`
+      locateFile: (file) => {
+        console.log('Loading file:', file);
+        return `/${file}`;
+      }
     });
+    console.log('SQL.js initialized');
 
     const savedDb = await localforage.getItem<Uint8Array>(DB_NAME);
 
     if (savedDb) {
+      console.log('Loading existing database from storage');
       db = new SQL.Database(savedDb);
     } else {
+      console.log('Creating new database');
       db = new SQL.Database();
       await createTables();
+      console.log('Tables created');
       await createDefaultUser();
+      console.log('Default user created');
       await saveDatabase();
+      console.log('Database saved');
     }
 
     return db;
   } catch (error) {
     console.error('Database initialization failed:', error);
-    throw new Error('Échec d\'initialisation de la base de données. Veuillez rafraîchir la page.');
+    throw new Error('Impossible de charger SQL.js. Vérifiez votre connexion.');
   }
 }
 
