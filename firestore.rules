@@ -1,0 +1,196 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isUserInOrg(orgId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/organizations/$(orgId)/users/$(request.auth.uid));
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+    
+    function isAdmin() {
+      return hasRole('admin');
+    }
+    
+    function isManager() {
+      return hasRole('manager');
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && (isOwner(userId) || isAdmin() || isManager());
+    }
+
+    // Organizations collection
+    match /organizations/{orgId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+      
+      match /users/{userId} {
+        allow read, write: if isAuthenticated() && (isOwner(userId) || isAdmin() || isManager());
+      }
+    }
+
+    // Time clock rules
+    match /timeClockEvents/{eventId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+        (isAdmin() || isManager() || request.resource.data.employeeId == request.auth.uid);
+      allow update: if isAuthenticated() && 
+        (isAdmin() || isManager() || resource.data.employeeId == request.auth.uid);
+    }
+
+    // Schedule rules
+    match /schedules/{scheduleId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Producer rules
+    match /producers/{producerId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Cooperative info rules
+    match /cooperativeInfo/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Targets collection
+    match /targets/{targetId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Employees collection
+    match /employees/{employeeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Attendance collection
+    match /attendance/{attendanceId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager() || resource.data.employeeId == request.auth.uid);
+    }
+
+    // Shifts collection
+    match /shifts/{shiftId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Stock collection
+    match /stock/{stockId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Warehouses collection
+    match /warehouses/{warehouseId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Lots collection
+    match /lots/{lotId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Routes collection
+    match /routes/{routeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Deliveries collection
+    match /deliveries/{deliveryId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Collections collection
+    match /collections/{collectionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Finance collection
+    match /finance/{financeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Invoices collection
+    match /invoices/{invoiceId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Budgets collection
+    match /budgets/{budgetId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Investments collection
+    match /investments/{investmentId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Claims collection
+    match /claims/{claimId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Reports collection
+    match /reports/{reportId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Settings collection
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Stock reservations collection
+    match /stockReservations/{reservationId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+      allow create: if isAuthenticated();
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin() || isManager());
+    }
+
+    // Weather collection
+    match /weather/{weatherId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin() || isManager());
+      allow write: if isAuthenticated() && (isAdmin() || isManager());
+    }
+  }
+}
